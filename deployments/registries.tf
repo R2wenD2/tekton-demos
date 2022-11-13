@@ -25,7 +25,7 @@ resource "google_artifact_registry_repository_iam_binding" "binding" {
 
 resource "google_project_iam_member" "verifier_role_binding" {
   for_each = local.verifier_roles
-  project  = var.project_id
+  project  = data.google_project.project.project_id
   role     = each.value
-  member   = "serviceAccount:${google_service_account.builder_sa.email}"
+  member   = "serviceAccount:${google_service_account.verifier_sa.email}"
 }

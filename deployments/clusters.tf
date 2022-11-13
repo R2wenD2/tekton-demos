@@ -32,13 +32,13 @@ resource "google_container_cluster" "cluster" {
     resource_limits {
       resource_type = "cpu"
       minimum       = 1
-      maximum       = 4
+      maximum       = 32
     }
 
     resource_limits {
       resource_type = "memory"
       minimum       = 4
-      maximum       = 16
+      maximum       = 64
     }
 
     auto_provisioning_defaults {

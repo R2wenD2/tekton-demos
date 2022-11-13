@@ -1,0 +1,15 @@
+#!/bin/bash
+
+DIR="$(dirname "$0")"
+. "${DIR}/config"
+
+set -o errexit
+set -o pipefail
+
+pipelinerun=$(mktemp)
+envsubst < "pipelines/demo-pipeline-run.yaml" > "${pipelinerun}"
+kubectl create -f "${pipelinerun}"
+rm -rf "${pipelinerun}"
+
+# Wait for completion!
+tkn pr logs --last -f

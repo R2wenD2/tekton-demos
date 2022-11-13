@@ -1,0 +1,77 @@
+#!/bin/bash
+
+DIR="$(dirname "$0")"
+. "${DIR}/config"
+
+set -o errexit
+set -o pipefail
+
+# Get GKE cluster entry.
+gcloud container clusters get-credentials $CLUSTER_NAME
+
+# Annotate SA.
+kubectl annotate sa -n default default iam.gke.io/gcp-service-account="${BUILDER_SA}" --overwrite
+
+# Install Tekton Pipelines CRDs.
+kubectl apply -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
+
+# Wait for controller and webhook to be become ready.
+kubectl wait pods -n tekton-pipelines \
+    -l app.kubernetes.io/part-of=tekton-pipelines \
+    --for condition=Ready --timeout=120s
+kubectl wait pods -n tekton-pipelines-resolvers \
+    -l app=tekton-pipelines-resolvers \
+    --for condition=Ready --timeout=120s
+
+# Install Tasks.
+kubectl apply -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/git-clone/0.9/git-clone.yaml
+kubectl apply -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/kaniko/0.6/kaniko.yaml
+
+# Install Tekton Chains.
+kubectl apply -f https://storage.googleapis.com/tekton-releases/chains/latest/release.yaml
+
+# Wait for controller and webhook to be become ready.
+kubectl wait pods -n tekton-chains \
+    -l app=tekton-chains-controller \
+    --for condition=Ready --timeout=120s
+
+# Configure Workload Identity for the Chains namespace.
+gcloud iam service-accounts add-iam-policy-binding \
+    $VERIFIER_SA --role roles/iam.workloadIdentityUser \
+    --member "serviceAccount:$PROJECT_ID.svc.id.goog[tekton-chains/${VERIFIER}]"
+
+kubectl annotate serviceaccount "${VERIFIER}" -n tekton-chains \
+    iam.gke.io/gcp-service-account=${VERIFIER_SA} --overwrite
+
+
+# Configure Tekton Chains to use simplesigning of images; TaskRuns will be
+# captured using in-toto. Attestations for both will be signed with a KMS key
+# and stored in both grafeas (Container Analysis) and in OCI bundles alongside
+# the image itself in Artifact Registry.
+# NOTE: not setting `storage.oci.repository` results in OCI beign stored alongside 
+# the image itself in the image registry.
+kubectl patch configmap chains-config -n tekton-chains \
+    -p='{"data":{
+    "artifacts.oci.format":      "simplesigning",
+    "artifacts.oci.signer":      "kms",
+    "artifacts.oci.storage":     "grafeas,oci",
+    "artifacts.taskrun.format":  "in-toto",
+    "artifacts.taskrun.signer":  "kms",
+    "artifacts.taskrun.storage": "grafeas,oci" }}'
+
+# Configure the KMS signing key, storage project in Container Analysis, and
+# builder identifier used by Tekton Chains.
+# TODO: CONTEXT value 
+kubectl patch configmap chains-config -n tekton-chains \
+    -p="{\"data\": {\
+    \"signers.kms.kmsref\":        \"${KMS_URI}\", \
+    \"storage.grafeas.projectid\": \"${PROJECT_ID}\", \
+    \"builder.id\":                \"${CONTEXT}\" }}"
+
+# Grant VERIFIER_SA write permission to store OCI attestations alongside the image in AR
+gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
+    --member="serviceAccount:${VERIFIER_SA}" \
+    --role='roles/artifactregistry.writer'
+
+# Apply pipelines
+kubectl apply -f pipelines/kaniko-pipeline.yaml

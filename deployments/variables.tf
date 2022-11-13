@@ -15,19 +15,19 @@ variable "region" {
 variable "zone" {
   description = "GCP Region Zone"
   type        = string
-  default     = "c"
+  nullable    = false
 }
 
 variable "builder_sa" {
   description = "Tekton Builder SA"
   type        = string
-  default     = "tekton-builder-sa"
+  default     = "builder"
 }
 
 variable "verifier_sa" {
   description = "Tekton Verifier SA"
   type        = string
-  default     = "tekton-verfier-sa"
+  default     = "tekton-chains-controller"
 }
 
 variable "repository_name" {

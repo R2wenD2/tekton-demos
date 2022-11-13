@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# Based on https://github.com/bendory/tekton-on-gcp/blob/main/setup.sh
+# Assumptions
+# - gcloud already authenticated
+# - gcloud gcloud application-default defiend (gcloud auth application-default login)
+# - gcloud defaults set to values from deployments/terraform.tfvars
+# - cosign and jq installed 
+# Example:
+# gcloud config set project YOUR_PROJECT_ID
+# gcloud config set compute/region us-west1
+# gcloud config set compute/zone us-west1-c
+
+# validation 
+gcloud=$(which gcloud) || ( echo "gcloud not found" && exit 1 )
+
+# Check gcloud is authenticated.
+ACCOUNT=$(gcloud auth list --filter=status:ACTIVE --format="value(account)")
+if [[ -z "${ACCOUNT}" ]]; then
+  echo "Run 'gcloud auth login' to authenticate to GCP first."
+  exit 1
+fi;
+
+# Check project is set
+export PROJECT_ID=$(gcloud config list --format 'value(core.project)')
+if [[ -z "${PROJECT_ID}" ]]; then
+  echo "`gcloud config set project YOUR_PROJECT_ID` note set."
+  exit 1
+fi;
+
+# Check project is set
+export REGION=$(gcloud config list --format 'value(compute.region)')
+if [[ -z "${REGION}" ]]; then
+  echo "`gcloud config set compute/region YOUR_REGION` note set."
+  exit 1
+fi;
+
+alias gcurl='curl -s 
+                  -X GET \
+                  -H "Content-Type: application/json" \
+                  -H "Authorization: Bearer $(gcloud auth print-access-token)"'
+
+# Config (these are in sync with TF so don't change)
+export CLUSTER_NAME="tekton"
+export BUILDER="builder"
+export BUILDER_SA="${BUILDER}@${PROJECT_ID}.iam.gserviceaccount.com"
+export VERIFIER="tekton-chains-controller"
+export VERIFIER_SA="${VERIFIER}@${PROJECT_ID}.iam.gserviceaccount.com"
+export KMS_RING="tekton-chains"
+export KMS_URI="gcpkms://projects/${PROJECT_ID}/locations/${REGION}/keyRings/${KMS_RING}/cryptoKeys/${KMS_RING}-chains-key/cryptoKeyVersions/1"
+export IMAGE=allow
+export REPO=my-repo
+
+
+# Print variables
+cat << EOF
+
+Configuration:
+  PROJECT_ID:  ${PROJECT_ID}
+  BUILDER_SA:  ${BUILDER_SA}
+  VERIFIER_SA: ${VERIFIER_SA}
+  KMS_URI:     ${KMS_URI}
+
+EOF

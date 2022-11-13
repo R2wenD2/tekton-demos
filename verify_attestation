@@ -1,0 +1,32 @@
+#!/bin/bash
+
+DIR="$(dirname "$0")"
+. "${DIR}/config"
+
+set -o errexit
+set -o pipefail
+
+IMAGE_URL=$(tkn tr describe --last -o jsonpath="{.status.taskResults[1].value}")
+IMAGE_DIGEST=$(tkn tr describe --last -o jsonpath="{.status.taskResults[0].value}")
+
+QUERY_URL="https://containeranalysis.googleapis.com/v1/projects/$PROJECT_ID/occurrences?filter=resourceUrl=\"${IMAGE_URL}@${IMAGE_DIGEST}\"%20AND%20kind=\"ATTESTATION\""
+
+TMP=$(mktemp -d)
+full=${TMP}/full
+gcurl "${QUERY_URL}" > ${full}
+
+# This is the signing key.
+KEY_REF=$(jq -r '.occurrences[0].envelope.signatures[0].keyid' "${full}")
+
+# Extract the signature.
+signature=${TMP}/signature
+jq -r '.occurrences[0].envelope.signatures[0].sig' "${full}" | tr '\-_' '+/' | base64 -d > ${signature}
+
+attestation=${TMP}/attestation
+jq -r '.occurrences[0].envelope.payload' "${full}" | tr '\-_' '+/' | base64 -d > ${attestation}
+
+# Verify the signature.
+cosign verify-blob --key "${KEY_REF}" --signature "${signature}" "${attestation}"
+
+# Cleanup
+rm -rf "${TMP}"

@@ -1,0 +1,25 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: clone-build-push-run-
+spec:
+  pipelineRef:
+    name: clone-build-push
+  podTemplate:
+    # See https://github.com/tektoncd/catalog/issues/1044
+    securityContext:
+      fsGroup: 65532
+  workspaces:
+  - name: shared-data
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Mi
+  params:
+  - name: repo-url
+    value: https://github.com/mchmarny/hello.git
+  - name: image-reference
+    value: us-west1-docker.pkg.dev/cloudy-demos/hello/hello:v0.0.1-tekton

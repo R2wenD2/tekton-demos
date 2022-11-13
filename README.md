@@ -1,10 +1,5 @@
 # WIP: tekton-demos
 
-Collection of Tekton demos
+Collection of Tekton demos based on https://github.com/bendory/tekton-on-gcp
 
 
-Get GKE cluster entry 
-
-```shell
-gcloud container clusters get-credentials tekton
-```

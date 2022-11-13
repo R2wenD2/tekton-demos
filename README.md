@@ -67,7 +67,7 @@ Once you have a GCP project configured, you are ready to install [Tekton](https:
 * Verify image
   * Attestation (by checking the claims against the transparency log)
     * `./verify_attestation`
-  * Provenance (trace build back to source, SLSA v0.2)
+  * Provenance (trace build back to source, [SLSA v0.2](https://slsa.dev/provenance/v0.2))
     * `./verify_provenance`
 
 ## Disclaimer

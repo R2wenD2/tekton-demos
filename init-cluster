@@ -43,7 +43,6 @@ gcloud iam service-accounts add-iam-policy-binding \
 kubectl annotate serviceaccount "${VERIFIER}" -n tekton-chains \
     iam.gke.io/gcp-service-account=${VERIFIER_SA} --overwrite
 
-
 # Configure Tekton Chains to use simplesigning of images; TaskRuns will be
 # captured using in-toto. Attestations for both will be signed with a KMS key
 # and stored in both grafeas (Container Analysis) and in OCI bundles alongside
@@ -71,6 +70,10 @@ kubectl patch configmap chains-config -n tekton-chains \
 # Grant VERIFIER_SA write permission to store OCI attestations alongside the image in AR
 gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
     --member="serviceAccount:${VERIFIER_SA}" \
+    --role='roles/artifactregistry.writer'
+
+gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
+    --member="serviceAccount:${BUILDER_SA}" \
     --role='roles/artifactregistry.writer'
 
 # Apply pipelines

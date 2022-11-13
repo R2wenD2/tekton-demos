@@ -35,11 +35,6 @@ if [[ -z "${REGION}" ]]; then
   exit 1
 fi;
 
-alias gcurl='curl -s 
-                  -X GET \
-                  -H "Content-Type: application/json" \
-                  -H "Authorization: Bearer $(gcloud auth print-access-token)"'
-
 # Config (these are in sync with TF so don't change)
 export CLUSTER_NAME="tekton"
 export BUILDER="builder"
@@ -56,9 +51,8 @@ export REPO=my-repo
 cat << EOF
 
 Configuration:
-  PROJECT_ID:  ${PROJECT_ID}
-  BUILDER_SA:  ${BUILDER_SA}
-  VERIFIER_SA: ${VERIFIER_SA}
-  KMS_URI:     ${KMS_URI}
-
+  PROJECT_ID:   ${PROJECT_ID}
+  BUILDER_SA:   ${BUILDER_SA}
+  VERIFIER_SA:  ${VERIFIER_SA}
+  KMS_URI:      ${KMS_URI}
 EOF

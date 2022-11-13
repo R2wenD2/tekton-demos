@@ -6,30 +6,24 @@ DIR="$(dirname "$0")"
 set -o errexit
 set -o pipefail
 
-# This script extracts and verifies provenance from the most recent TaskRun.
-# Prerequisites:
-# - install `cosign` and `jq`.
-# - set up Application Default Credentials by running `gcloud auth application-default login`.
-
 IMAGE_URL=$(tkn tr describe --last -o jsonpath="{.status.taskResults[1].value}")
 IMAGE_DIGEST=$(tkn tr describe --last -o jsonpath="{.status.taskResults[0].value}")
 
+cat << EOF
+  IMAGE_URL:    ${IMAGE_URL}
+  IMAGE_DIGEST: ${IMAGE_DIGEST}
+EOF
+
 QUERY_URL="https://containeranalysis.googleapis.com/v1/projects/$PROJECT_ID/occurrences?filter=resourceUrl=\"${IMAGE_URL}@${IMAGE_DIGEST}\"%20AND%20kind=\"BUILD\""
 
-
-TMP=$(mktemp -d)
-full=${TMP}/full
-gcurl "${QUERY_URL}" > ${full}
-
-# This is the signing key.
-KEY_REF=$(jq -r '.occurrences[0].envelope.signatures[0].keyid' "${full}")
+MANIFEST_PATH=temp/manifest.json
+curl -s -X GET -H "Content-Type: application/json" \
+         -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+         $QUERY_URL > $MANIFEST_PATH
 
 # Extract the signature.
-signature=${TMP}/signature
-jq -r '.occurrences[0].envelope.signatures[0].sig' "${full}" | tr '\-_' '+/' | base64 -d > ${signature}
+SIG_PATH=temp/signature.sig
+jq -r '.occurrences[0].envelope.signatures[0].sig' $MANIFEST_PATH | tr '\-_' '+/' | base64 -d > $SIG_PATH
 
 # Verify the signature.
-cosign verify-blob --key "${KEY_REF}" --signature "${signature}" "${signature}"
-
-# Cleanup
-rm -rf "${TMP}"
+cosign verify-blob --key $KMS_URI --signature $SIG_PATH $SIG_PATH

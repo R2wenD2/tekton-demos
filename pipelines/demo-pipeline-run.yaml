@@ -22,4 +22,4 @@ spec:
   - name: repo-url
     value: https://github.com/mchmarny/hello.git
   - name: image-reference
-    value: us-west1-docker.pkg.dev/cloudy-demos/hello/hello:v0.0.1-tekton
+    value: us-west1-docker.pkg.dev/cloudy-demos/hello/hello

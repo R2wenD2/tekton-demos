@@ -9,4 +9,3 @@ resource "google_service_account" "verifier_sa" {
   account_id   = var.verifier_sa
   display_name = "Image Verification Service Account"
 }
-

@@ -90,7 +90,7 @@ resource "google_container_node_pool" "cluster_nodes" {
 
   lifecycle {
     ignore_changes = [
-      initial_node_count
+      node_count
     ]
   }
 }

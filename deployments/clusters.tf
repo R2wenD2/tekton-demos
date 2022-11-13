@@ -45,6 +45,11 @@ resource "google_container_cluster" "cluster" {
       image_type = "COS_CONTAINERD"
     }
   }
+
+  resource_labels = {
+    "environment" = "demo"
+    "demo"        = "tekton"
+  }
 }
 
 
@@ -82,13 +87,16 @@ resource "google_container_node_pool" "cluster_nodes" {
       enabled = true
     }
   }
+
+  lifecycle {
+    ignore_changes = [
+      initial_node_count
+    ]
+  }
 }
 
-resource "google_service_account_iam_binding" "cluster_role_binding" {
+resource "google_service_account_iam_member" "cluster_role_binding" {
   service_account_id = google_service_account.builder_sa.name
   role               = "roles/iam.workloadIdentityUser"
-
-  members = [
-    "serviceAccount:${data.google_project.project.project_id}.svc.id.goog[default/default]",
-  ]
+  member             = "serviceAccount:${data.google_project.project.project_id}.svc.id.goog[default/default]"
 }

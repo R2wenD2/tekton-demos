@@ -39,6 +39,8 @@ terraform -chdir=deployments apply
 
 ## Tekton 
 
+> The cluster initialization is based on the work done by [@bendory](https://github.com/bendory/tekton-on-gcp).
+
 Once you have a GCP project configured, you are ready to install [Tekton](https://tekton.dev). This process will:
 
 * Install Tekton Pipelines and Chains

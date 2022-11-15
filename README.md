@@ -53,6 +53,8 @@ Once you have a GCP project configured, you are ready to install [Tekton](https:
 ./init-cluster
 ```
 
+> Fo info how to export the entire configuration into Terraform see [deployments/README.md](deployments/README.md).
+
 ## Demo 
 
 * Config

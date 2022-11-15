@@ -1,4 +1,4 @@
-# WIP: tekton-demos
+# tekton-demos
 
 Collection of Tekton demos. 
 

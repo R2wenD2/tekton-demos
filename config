@@ -28,6 +28,9 @@ if [[ -z "${PROJECT_ID}" ]]; then
   exit 1
 fi;
 
+# Project Number
+export PROJECT_NUMBER="$(gcloud projects describe "${PROJECT_ID}" --format='value(projectNumber)')"
+
 # Check project is set
 export REGION=$(gcloud config list --format 'value(compute.region)')
 if [[ -z "${REGION}" ]]; then

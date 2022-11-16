@@ -26,6 +26,7 @@ kubectl wait pods -n tekton-pipelines-resolvers \
 # Install Tasks.
 kubectl apply -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/git-clone/0.9/git-clone.yaml
 kubectl apply -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/kaniko/0.6/kaniko.yaml
+kubectl apply -f https://raw.githubusercontent.com/garethr/snyk-tekton/master/golang/golang.yaml
 
 # Install Tekton Chains.
 kubectl apply -f https://storage.googleapis.com/tekton-releases/chains/latest/release.yaml
@@ -76,5 +77,8 @@ gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
     --member="serviceAccount:${BUILDER_SA}" \
     --role='roles/artifactregistry.writer'
 
+# Create Snyc secret 
+kubectl create secret generic snyk --from-literal=token=$SNYK_TOKEN
+
 # Apply pipelines
-kubectl apply -f pipelines/kaniko-pipeline.yaml
+kubectl apply -f pipelines/demo-pipeline.yaml

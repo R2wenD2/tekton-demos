@@ -48,6 +48,7 @@ export KMS_RING="tekton-chains"
 export KMS_URI="gcpkms://projects/${PROJECT_ID}/locations/${REGION}/keyRings/${KMS_RING}/cryptoKeys/${KMS_RING}-chains-key/cryptoKeyVersions/1"
 export IMAGE=allow
 export REPO=my-repo
+export SNYK_TOKEN="ADD-YOUR-SNYK-TOKEN-HERE"
 
 
 # Print variables

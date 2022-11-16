@@ -58,8 +58,9 @@ Once you have a GCP project configured, you are ready to install [Tekton](https:
 ## Demo 
 
 * Config
-  * Pipeline ([pipelines/kaniko-pipeline.yaml](pipelines/kaniko-pipeline.yaml))
+  * Pipeline ([pipelines/demo-pipeline.yaml](pipelines/demo-pipeline.yaml))
   * Pipeline Run ([pipelines/demo-pipeline-run.yaml](pipelines/demo-pipeline-run.yaml))
+  * [Tekton Hub](https://hub.tekton.dev/)
   * Sample app ([hello](https://github.com/mchmarny/hello))
 * Run `kubectl create -f pipelines/demo-pipeline-run.yaml` 
   * Observe `tkn pr logs --last -f` (~1 min)

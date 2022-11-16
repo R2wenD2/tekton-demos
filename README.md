@@ -45,7 +45,7 @@ Once you have a GCP project configured, you are ready to install [Tekton](https:
 
 * Install Tekton Pipelines and Chains
 * Annotate Kubernetes service account to map it to GCP IAM account
-* Install Git Clone and Kaniko tasks 
+* Install Git Clone, Snyk scan, and Kaniko tasks ([Tekton Hub](https://hub.tekton.dev/))
 * Configure binary authorization 
 
 

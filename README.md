@@ -75,6 +75,8 @@ Once you have a GCP project configured, you are ready to install [Tekton](https:
   * Provenance (trace build back to source, [SLSA v0.2](https://slsa.dev/provenance/v0.2))
     * `./verify_provenance`
 
+> TODO: Add Rekor query (https://rekor.tlog.dev/)
+
 ## Disclaimer
 
 This is my personal project and it does not represent my employer. While I do my best to ensure that everything works, I take no responsibility for issues caused by this code.

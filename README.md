@@ -80,6 +80,7 @@ Once you have a GCP project configured, you are ready to install [Tekton](https:
 * Rekor query (https://rekor.tlog.dev/)
 * VEX example (https://www.cisa.gov/sites/default/files/publications/VEX_Use_Cases_Aprill2022.pdf, https://github.com/CycloneDX/bom-examples/blob/master/VEX/vex.json)
 
+
 ## Disclaimer
 
 This is my personal project and it does not represent my employer. While I do my best to ensure that everything works, I take no responsibility for issues caused by this code.

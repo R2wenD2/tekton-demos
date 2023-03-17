@@ -16,6 +16,14 @@ spec:
   tasks:
   - name: fetch-source
     taskRef:
+      resolver: gcb-repo
+      params:
+      - name: repository
+        value: projects/gcb-catalog-release/locations/us-central1/connections/github-conn/repositories/git-tkn
+      - name: revision
+        value: v0
+      - name: pthInRepo
+        value: task/git-clone/git-clone.yaml
       name: git-clone
     workspaces:
     - name: output
@@ -23,27 +31,3 @@ spec:
     params:
     - name: url
       value: $(params.repo-url)
-  - name: scan-for-vulnerabilities
-    taskRef:
-      name: snyk-golang
-    params:
-    - name: args
-      value:
-      - --severity-threshold=medium
-    runAfter:
-    - fetch-source
-    workspaces:
-    - name: source
-      workspace: shared-data
-  - name: build-push
-    runAfter:
-    - fetch-source
-    - scan-for-vulnerabilities
-    taskRef:
-      name: kaniko
-    workspaces:
-    - name: source
-      workspace: shared-data
-    params:
-    - name: IMAGE
-      value: $(params.image-reference)

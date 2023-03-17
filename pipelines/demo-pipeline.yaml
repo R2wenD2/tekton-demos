@@ -20,7 +20,7 @@ spec:
         value: projects/gcb-catalog-release/locations/us-central1/connections/github-conn/repositories/git-tkn
       - name: revision
         value: v0
-      - name: pthInRepo
+      - name: pathInRepo
         value: task/git-clone/git-clone.yaml
       name: git-clone
     workspaces:

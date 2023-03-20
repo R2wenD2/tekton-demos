@@ -1,0 +1,30 @@
+pipeline:
+  spec:
+    workspaces:
+      - name: shared-data
+    tasks:
+    - name: fetch-source
+      taskRef:
+        resolver: gcb-repo
+        params:
+        - name: repository
+          value: projects/gcb-catalog-release/locations/us-central1/connections/github-conn/repositories/git-tkn
+        - name: revision
+          value: v0
+        - name: pathInRepo
+          value: task/git-clone/git-clone.yaml
+      workspaces:
+      - name: output
+        workspace: shared-data
+      params:
+      - name: url
+        value: $(params.repo-url)
+      - name: revision
+        value: main
+    - name: sleep
+      taskSpec:
+        steps:
+        # Sleep 10 seconds or there may not be logs (b/268634868).
+        - image: ubuntu
+          command: sleep
+          args: "10"

@@ -2,7 +2,7 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 spec:
   workspaces:
-   - name: shared-data
+  - name: shared-data
   tasks:
   - name: fetch-source
     taskRef:

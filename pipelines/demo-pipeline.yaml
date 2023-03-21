@@ -12,7 +12,6 @@ spec:
   workspaces:
   - name: shared-data
   tasks:
-  - name: fetch-source
     taskRef:
       resolver: gcb-repo
       params:

@@ -22,7 +22,6 @@ spec:
         value: v0
       - name: pathInRepo
         value: task/git-clone/git-clone.yaml
-      name: git-clone
     workspaces:
     - name: output
       workspace: shared-data
